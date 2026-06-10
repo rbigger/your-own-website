@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Sanity
+.sanity/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+materials/
+
+# Build artifacts
+baselines/
+web/.wrangler/
+web/deploy_package/
+*.pdf

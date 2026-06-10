@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "description": "Baseline rich text HTML samples captured from Part 0 build",
+    "capturedAt": "2026-06-08",
+    "purpose": "Unit test comparison for Part 3 @portabletext/to-html implementation",
+    "sourceComponent": "astro-portabletext"
+  },
+  "samples": [
+    {
+      "page": "about.astro",
+      "field": "settings.ownerBio",
+      "portableTextBlocks": 3,
+      "renderedHtml": "<p>Maybe you've watched sailboats from shore and wondered what it would feel like to be out there. The quiet. The wind filling the sails. No engine noise, no schedule - just you and the water.</p><p>I've spent twelve years teaching people to sail, and most of what I teach is a kind of attention. The taste of salt in the air. The wind playing across the surface of the water. The feel of the ocean working beneath your feet, and the sound of it flowing past the hull. Once you start taking all that in, the boat stops being a puzzle and starts telling you what it needs.</p><p>My approach is simple. We'll spend some time at the whiteboard so you can visualize what the wind is doing and how the boat will respond. Then we get on the water, and you do it yourself. What the hand does, the head remembers.</p>",
+      "notes": "Three paragraph blocks, no special marks or inline elements"
+    },
+    {
+      "page": "courses/[slug].astro (asa-101)",
+      "field": "course.description",
+      "portableTextBlocks": 1,
+      "renderedHtml": "<p>Your gateway to sailing. This foundational course teaches the fundamentals that apply to all sailboats - from basic terminology and sail trim to helm commands and navigation rules. No experience required.</p>",
+      "notes": "Single paragraph block"
+    }
+  ],
+  "observedPatterns": {
+    "blockType_normal": "Renders as <p>...</p>",
+    "consecutiveBlocks": "No wrapper element, blocks rendered adjacently",
+    "specialCharacters": "Apostrophes rendered as &#39; in HTML"
+  }
+}

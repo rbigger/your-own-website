@@ -1,0 +1,37 @@
+---
+// CommentList.astro - Display approved comments
+// Task #9: Query Sanity for approved comments and display
+import { getApprovedComments } from '../lib/content'
+import { PUBLIC_ENABLE_COMMENTS } from 'astro:env/client'
+
+// Defensive guard: no-op when comments disabled
+if (!PUBLIC_ENABLE_COMMENTS) return null
+
+const comments = await getApprovedComments()
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+---
+
+{comments.length > 0 && (
+  <section class="mt-16 pt-16 border-t border-gray-200">
+    <h2 class="text-2xl font-bold text-navy mb-8 text-center">Recent Comments</h2>
+    <div class="space-y-6 max-w-3xl mx-auto">
+      {comments.map((c: any) => (
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <p class="text-gray-700 leading-relaxed mb-4">{c.comment}</p>
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-semibold text-navy">{c.name}</span>
+            <span class="text-gray-500">{formatDate(c.submittedAt)}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+)}

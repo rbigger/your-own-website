@@ -1,0 +1,34 @@
+sequenceDiagram
+    autonumber
+    participant Owner as Site Owner
+    participant FS as Formspree Dashboard
+    participant Email as Email Provider
+    participant Visitor as Site Visitor
+    participant Site as Contact Page
+
+    Note over Owner,Site: Change Contact Form Recipient
+
+    Owner->>FS: Login to formspree.io
+    Owner->>FS: Navigate to Account > Linked Emails
+    Owner->>FS: Add new email address
+
+    FS->>Email: Send verification email
+    Email-->>Owner: Verification link
+    Owner->>FS: Click verification link
+    FS->>FS: Mark email as verified
+
+    Owner->>FS: Navigate to Forms > Contact Form
+    Owner->>FS: Click Workflow tab
+    Owner->>FS: Scroll to Actions section
+    Owner->>FS: Click 3-dot menu on Email row
+    Owner->>FS: Select new recipient
+    Owner->>FS: Save
+
+    Note over Owner,Site: Test the Change
+
+    Owner->>Site: Submit test message
+    Site->>FS: POST form data
+    FS->>Email: Deliver to new recipient
+    Email-->>Owner: Test message received
+
+    Note over Owner,Site: No site rebuild required - takes effect immediately

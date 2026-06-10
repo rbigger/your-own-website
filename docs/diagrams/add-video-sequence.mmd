@@ -1,0 +1,38 @@
+sequenceDiagram
+    autonumber
+    participant Owner as Site Owner
+    participant Studio as Sanity Studio
+    participant YouTube as YouTube API
+    participant Content as Sanity Content Lake
+    participant CLI as Developer CLI
+    participant CF as Cloudflare Pages
+    participant Site as Live Website
+
+    Note over Owner,Site: Add New Video Workflow
+
+    Owner->>Studio: Navigate to Videos
+    Owner->>Studio: Click + (new video)
+    Owner->>Studio: Paste YouTube URL
+    Owner->>Studio: Click dropdown arrow next to Publish
+    Owner->>Studio: Select "Fetch from YouTube"
+
+    Studio->>YouTube: GET /videos?id={videoId}
+    YouTube-->>Studio: Video metadata (title, description, duration, thumbnail)
+
+    Studio->>Studio: Auto-populate fields
+    Owner->>Studio: Select Category
+    Owner->>Studio: Click Publish
+
+    Studio->>Content: Save video document
+
+    Note over Owner,Site: Deploy to Live Site
+
+    Owner->>CLI: Request deploy
+    CLI->>CLI: npm run build
+    CLI->>CLI: Create deploy_package
+    Owner->>CF: Upload via Cloudflare Dashboard
+    CF->>Content: Fetch all content (build time)
+    CF->>CF: Generate static pages
+    CF-->>Site: Deploy to CDN
+
+    Note over Owner,Site: Video now visible on live site

@@ -1,0 +1,82 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a365d', 'primaryTextColor': '#fff', 'primaryBorderColor': '#2c5282', 'lineColor': '#4a5568'}}}%%
+flowchart TB
+    subgraph owner["Site Owner"]
+        browser1["Web Browser"]
+    end
+
+    subgraph visitor["Site Visitor"]
+        browser2["Web Browser"]
+    end
+
+    subgraph sanity["Sanity CMS"]
+        studio["Sanity Studio<br/>your-site.sanity.studio"]
+        content["Content Lake<br/>Documents + Assets"]
+        actions["Document Actions<br/>Fetch YouTube Metadata"]
+    end
+
+    subgraph website["Static Website"]
+        astro["Astro SSG<br/>Build-time rendering"]
+        pages["HTML/CSS/JS<br/>Static pages"]
+    end
+
+    subgraph cloudflare["Cloudflare"]
+        cfpages["Cloudflare Pages<br/>your-site.pages.dev"]
+        cdn["CDN<br/>Global edge cache"]
+        worker["Pages Function<br/>/api/comment"]
+    end
+
+    subgraph github["GitHub"]
+        repo["Repository<br/>your-org/your-site"]
+    end
+
+    subgraph google["Google Cloud"]
+        ytapi["YouTube Data API v3<br/>Video metadata"]
+    end
+
+    subgraph formspree["Formspree"]
+        form["Form Endpoint<br/>xnjrldzp"]
+        email["Email Delivery"]
+    end
+
+    subgraph youtube["YouTube"]
+        videos["Video Library<br/>@YourChannel"]
+        embed["Embed Player"]
+    end
+
+    browser1 -->|"Edit content"| studio
+    studio -->|"CRUD"| content
+    actions -->|"Fetch metadata"| ytapi
+    studio -->|"Trigger"| actions
+
+    astro -->|"GROQ queries"| content
+    astro -->|"Generate"| pages
+    pages -->|"Deploy"| cfpages
+    cfpages -->|"Serve via"| cdn
+
+    browser2 -->|"HTTPS"| cdn
+    browser2 -->|"Watch"| embed
+    browser2 -->|"Submit contact"| form
+    browser2 -->|"Submit comment"| worker
+    form -->|"Deliver to"| email
+    worker -->|"Save to"| content
+    repo -->|"Source for"| astro
+
+    classDef ownerStyle fill:#e2e8f0,stroke:#4a5568,color:#1a202c
+    classDef visitorStyle fill:#f0fff4,stroke:#48bb78,color:#1a202c
+    classDef sanityStyle fill:#f56565,stroke:#c53030,color:#fff
+    classDef websiteStyle fill:#4299e1,stroke:#2b6cb0,color:#fff
+    classDef cloudflareStyle fill:#f6ad55,stroke:#dd6b20,color:#1a202c
+    classDef githubStyle fill:#24292e,stroke:#1b1f23,color:#fff
+    classDef googleStyle fill:#48bb78,stroke:#276749,color:#fff
+    classDef formspreeStyle fill:#9f7aea,stroke:#6b46c1,color:#fff
+    classDef youtubeStyle fill:#fc8181,stroke:#c53030,color:#1a202c
+
+    class browser1 ownerStyle
+    class browser2 visitorStyle
+    class studio,content,actions sanityStyle
+    class astro,pages websiteStyle
+    class cfpages,cdn,worker cloudflareStyle
+    class repo githubStyle
+    class ytapi googleStyle
+    class form,email formspreeStyle
+    class videos,embed youtubeStyle

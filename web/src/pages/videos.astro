@@ -1,0 +1,236 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { getFeaturedVideo, getVideoSections } from '../lib/content'
+
+const featuredVideo = await getFeaturedVideo()
+const sections = await getVideoSections()
+
+// Apply maxVideos limit if set
+const processedSections = sections.map((section: any) => ({
+  ...section,
+  videos: section.maxVideos
+    ? section.videos?.slice(0, section.maxVideos)
+    : section.videos
+})).filter((section: any) => section.videos?.length > 0)
+---
+
+<Layout title="Videos" description="Sailing tutorials and tips">
+  <!-- Page Header -->
+  <section class="bg-navy text-white py-8">
+    <div class="max-w-6xl mx-auto px-4">
+      <h1 class="text-3xl font-bold">Video Library</h1>
+      <p class="text-gray-300 mt-1">Learn sailing skills from beginner basics to advanced techniques.</p>
+    </div>
+  </section>
+
+  <!-- Featured Video -->
+  {featuredVideo && (
+    <section class="bg-gray-900 text-white py-8">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="bg-sky text-navy text-xs font-bold px-2 py-1 rounded">FEATURED</span>
+          {featuredVideo.category?.name && (
+            <span class="text-gray-400 text-sm">{featuredVideo.category.icon} {featuredVideo.category.name}</span>
+          )}
+        </div>
+        <div class="aspect-video rounded-lg overflow-hidden">
+          <iframe
+            src={`https://www.youtube.com/embed/${featuredVideo.youtubeId}`}
+            title={featuredVideo.title}
+            class="w-full h-full"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <h2 class="text-xl font-bold mt-4">{featuredVideo.title}</h2>
+        {featuredVideo.duration && (
+          <span class="text-gray-400 text-sm">{featuredVideo.duration}</span>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Quick Navigation -->
+  {processedSections.length > 0 && (
+    <nav class="bg-gray-100 border-b sticky top-0 z-10">
+      <div class="max-w-6xl mx-auto px-4 py-3">
+        <div class="flex gap-4 overflow-x-auto text-sm font-medium">
+          {processedSections.map((section: any) => (
+            <a href={`#${section.slug}`} class="text-gray-600 hover:text-navy whitespace-nowrap">
+              {section.title}
+            </a>
+          ))}
+        </div>
+      </div>
+    </nav>
+  )}
+
+  <!-- Sections -->
+  {processedSections.map((section: any, index: number) => (
+    <section
+      id={section.slug}
+      class={`py-12 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+    >
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-navy">{section.title}</h2>
+            {section.description && (
+              <p class="text-gray-600 mt-1">{section.description}</p>
+            )}
+          </div>
+          <span class="text-gray-500 text-sm">{section.videos.length} videos</span>
+        </div>
+
+        {/* Horizontal Scroll Layout */}
+        {section.displayStyle === 'scroll' && (
+          <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x">
+            {section.videos.map((video: any) => (
+              <a
+                href={video.videoType === 'short'
+                  ? `https://www.youtube.com/shorts/${video.youtubeId}`
+                  : `https://www.youtube.com/watch?v=${video.youtubeId}`}
+                target="_blank"
+                rel="noopener"
+                class="flex-shrink-0 w-36 group snap-start"
+              >
+                <div class="relative aspect-[9/16] rounded-xl overflow-hidden bg-gray-200 shadow-md">
+                  <img
+                    src={video.thumbnailUrl || `https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`}
+                    alt={video.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                  <div class="absolute bottom-0 left-0 right-0 p-3">
+                    <p class="text-white text-xs font-medium line-clamp-2">{video.title}</p>
+                  </div>
+                  {video.videoType === 'short' && (
+                    <div class="absolute top-2 right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded">
+                      SHORT
+                    </div>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* Large Cards Layout (2 columns) */}
+        {section.displayStyle === 'large' && (
+          <div class="grid md:grid-cols-2 gap-6">
+            {section.videos.map((video: any) => (
+              <a
+                href={`https://www.youtube.com/watch?v=${video.youtubeId}`}
+                target="_blank"
+                rel="noopener"
+                class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition group"
+              >
+                <div class="relative aspect-video">
+                  <img
+                    src={video.thumbnailUrl || `https://i.ytimg.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+                    alt={video.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  {video.duration && (
+                    <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                      {video.duration}
+                    </span>
+                  )}
+                </div>
+                <div class="p-5">
+                  <h3 class="text-lg font-bold text-navy">{video.title}</h3>
+                  {video.description && (
+                    <p class="text-gray-600 text-sm mt-2 line-clamp-3">{video.description}</p>
+                  )}
+                  {video.viewCount && (
+                    <p class="text-gray-400 text-xs mt-3">{video.viewCount.toLocaleString()} views</p>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* Grid Layout (3 columns) - default */}
+        {(section.displayStyle === 'grid' || !section.displayStyle) && (
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {section.videos.map((video: any) => (
+              <a
+                href={video.videoType === 'short'
+                  ? `https://www.youtube.com/shorts/${video.youtubeId}`
+                  : `https://www.youtube.com/watch?v=${video.youtubeId}`}
+                target="_blank"
+                rel="noopener"
+                class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition group"
+              >
+                <div class="relative aspect-video">
+                  <img
+                    src={video.thumbnailUrl || `https://i.ytimg.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+                    alt={video.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  {video.duration && (
+                    <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                      {video.duration}
+                    </span>
+                  )}
+                </div>
+                <div class="p-4">
+                  <h3 class="font-bold text-navy line-clamp-2">{video.title}</h3>
+                  {video.description && (
+                    <p class="text-gray-600 text-sm mt-2 line-clamp-2">{video.description}</p>
+                  )}
+                  {video.viewCount && (
+                    <p class="text-gray-400 text-xs mt-2">{video.viewCount.toLocaleString()} views</p>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  ))}
+
+  <!-- Empty State -->
+  {!featuredVideo && processedSections.length === 0 && (
+    <section class="py-24">
+      <div class="max-w-6xl mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold text-navy mb-4">Video Library</h1>
+        <p class="text-gray-500 text-lg">Videos coming soon. Check back later!</p>
+      </div>
+    </section>
+  )}
+
+  <!-- Subscribe CTA -->
+  <section class="py-16 bg-navy text-white">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-4">Never Miss a Lesson</h2>
+      <p class="text-gray-300 mb-8 max-w-xl mx-auto">
+        Subscribe to get notified when new tutorials, tips, and sailing content are published.
+      </p>
+      <a
+        href="https://www.youtube.com/@YourChannel?sub_confirmation=1"
+        target="_blank"
+        rel="noopener"
+        class="inline-flex items-center gap-2 bg-red-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-red-700 transition text-lg"
+      >
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+        Subscribe on YouTube
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .overflow-x-auto {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .overflow-x-auto::-webkit-scrollbar {
+    display: none;
+  }
+</style>

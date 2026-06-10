@@ -1,0 +1,22 @@
+---
+/**
+ * RichText Component
+ * 
+ * Renders rich text content that has been serialized to HTML by the
+ * content provider. This is a trivial wrapper using Astro's set:html.
+ * 
+ * @see SPEC-YOW-002 §5.2 - Option A (HTML serialization)
+ */
+interface Props {
+  html: string
+  class?: string
+}
+
+const { html, class: className } = Astro.props
+---
+
+{className ? (
+  <div class={className} set:html={html} />
+) : (
+  <Fragment set:html={html} />
+)}

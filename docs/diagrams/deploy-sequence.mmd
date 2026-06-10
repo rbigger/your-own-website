@@ -1,0 +1,47 @@
+sequenceDiagram
+    autonumber
+    participant Owner as Site Owner
+    participant Sanity as Sanity CMS
+    participant Dev as Developer/CLI
+    participant GitHub as GitHub Repo
+    participant CF as Cloudflare Pages
+    participant CDN as Cloudflare CDN
+    participant Visitor as Site Visitor
+
+    Note over Owner,Visitor: Content Update and Deploy Workflow
+
+    Owner->>Sanity: Make content changes
+    Owner->>Sanity: Click Publish
+    Sanity->>Sanity: Save to Content Lake
+
+    Note over Owner,Visitor: Changes saved but NOT live yet
+
+    alt Option A: Manual Upload (Current Method)
+        Owner->>Dev: Request deploy
+        Dev->>Dev: cd web && npm run build
+        Dev->>Dev: Create deploy_package with dist + functions
+        Owner->>CF: Login to dash.cloudflare.com
+        Owner->>CF: Pages > your-project > Create deployment
+        Owner->>CF: Upload deploy_package contents
+        Owner->>CF: Click Save and deploy
+    else Option B: Retry Previous Build
+        Owner->>CF: Login to dash.cloudflare.com
+        Owner->>CF: Pages > your-project
+        Owner->>CF: Deployments > Retry deployment
+        Note right of CF: Uses cached build artifacts
+    else Option C: CLI Deploy (Alternative)
+        Dev->>Dev: cd web && npm run build
+        Dev->>CF: npx wrangler pages deploy dist
+        Note right of CF: Requires wrangler CLI setup
+    end
+
+    Note over Owner,Visitor: GitHub auto-deploy NOT configured<br/>(manual upload required)
+
+    CF->>Sanity: Fetch content (build time)
+    CF->>CF: npm run build (Astro SSG)
+    CF->>CF: Generate static HTML/CSS/JS
+    CF->>CDN: Deploy to edge locations
+
+    CDN-->>Visitor: Serve updated content
+
+    Note over Owner,Visitor: Changes now live worldwide

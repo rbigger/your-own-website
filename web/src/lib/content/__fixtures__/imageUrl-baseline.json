@@ -1,0 +1,71 @@
+{
+  "_meta": {
+    "description": "Baseline imageUrl samples captured from Part 0 build",
+    "capturedAt": "2026-06-08",
+    "purpose": "Unit test comparison for Part 2 imageUrl() implementation",
+    "urlPattern": "https://cdn.sanity.io/images/{projectId}/{dataset}/{assetId}-{origW}x{origH}.{ext}?{transforms}"
+  },
+  "samples": [
+    {
+      "page": "gallery.astro",
+      "usage": "urlFor(photo.image).width(400).height(300).url()",
+      "opts": { "width": 400, "height": 300 },
+      "sampleUrl": "https://cdn.sanity.io/images/your-project-id/production/41fea22e1153debcaea9c623cad8ccb93a606053-1080x2280.jpg?rect=0,735,1080,810&w=400&h=300"
+    },
+    {
+      "page": "fleet.astro",
+      "usage": "urlFor(boat.photo).width(600).height(400).url()",
+      "opts": { "width": 600, "height": 400 },
+      "sampleUrl": "https://cdn.sanity.io/images/your-project-id/production/a9fb6d4a7db457531e6c92a20d9c244421c4ae76-3840x1100.webp?rect=1095,0,1650,1100&w=600&h=400"
+    },
+    {
+      "page": "fleet.astro (gallery thumb)",
+      "usage": "urlFor(img).width(300).height(200).url()",
+      "opts": { "width": 300, "height": 200 },
+      "sampleUrl": "https://cdn.sanity.io/images/your-project-id/production/9a14cafd56fdc5b5956e5e1b126bdbba0989d71e-960x640.jpg?w=300&h=200"
+    },
+    {
+      "page": "courses/index.astro",
+      "usage": "urlFor(course.image).width(400).height(250).url()",
+      "opts": { "width": 400, "height": 250 },
+      "sampleUrl": "https://cdn.sanity.io/images/your-project-id/production/a9fb6d4a7db457531e6c92a20d9c244421c4ae76-3840x1100.webp?rect=1187,0,1467,1100&w=400&h=250"
+    },
+    {
+      "page": "courses/[slug].astro (hero)",
+      "usage": "urlFor(course.image).width(900).height(500).url()",
+      "opts": { "width": 900, "height": 500 },
+      "sampleUrl": "https://cdn.sanity.io/images/your-project-id/production/a9fb6d4a7db457531e6c92a20d9c244421c4ae76-3840x1100.webp?rect=1187,0,1467,1100&w=900&h=500"
+    },
+    {
+      "page": "courses/[slug].astro (boat)",
+      "usage": "urlFor(course.boat.photo).width(200).height(150).url()",
+      "opts": { "width": 200, "height": 150 },
+      "sampleUrl": "https://cdn.sanity.io/images/your-project-id/production/9a14cafd56fdc5b5956e5e1b126bdbba0989d71e-960x640.jpg?rect=54,0,853,640&w=200&h=150"
+    },
+    {
+      "page": "testimonials.astro",
+      "usage": "urlFor(t.authorPhoto).width(48).height(48).url()",
+      "opts": { "width": 48, "height": 48 },
+      "note": "No author photos in current data - placeholder sample"
+    },
+    {
+      "page": "about.astro",
+      "usage": "urlFor(settings.ownerPhoto).width(400).height(500).url()",
+      "opts": { "width": 400, "height": 500 },
+      "note": "No owner photo in current data - placeholder sample"
+    },
+    {
+      "page": "index.astro",
+      "usage": "urlFor(course.image).width(400).height(250).url()",
+      "opts": { "width": 400, "height": 250 },
+      "sampleUrl": "https://cdn.sanity.io/images/your-project-id/production/a9fb6d4a7db457531e6c92a20d9c244421c4ae76-3840x1100.webp?rect=1187,0,1467,1100&w=400&h=250"
+    }
+  ],
+  "transformPattern": {
+    "width": "w={value}",
+    "height": "h={value}",
+    "rect": "rect={x},{y},{w},{h} (auto-crop for aspect ratio)",
+    "quality": "q={value} (not used in current site)",
+    "format": "fm={value} (not used in current site)"
+  }
+}

@@ -1,0 +1,157 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { getCourses, getCourse, getSiteSettings, imageUrl } from '../../lib/content'
+import RichText from '../../lib/content/RichText.astro'
+
+export async function getStaticPaths() {
+  const courses = await getCourses()
+  return courses.map((course: any) => ({
+    params: { slug: course.slug },
+  }))
+}
+
+const { slug } = Astro.params
+const course = await getCourse(slug!)
+const settings = await getSiteSettings()
+
+if (!course) {
+  return Astro.redirect('/courses')
+}
+---
+
+<Layout title={`${course.code} - ${course.title}`} description={course.summary}>
+  <article class="py-16">
+    <div class="max-w-4xl mx-auto px-4">
+      <!-- Header -->
+      <div class="mb-8">
+        <p class="text-ocean font-semibold mb-2">{course.code}</p>
+        <h1 class="text-4xl font-bold text-navy mb-4">{course.title}</h1>
+        <p class="text-xl text-gray-600">{course.tagline}</p>
+      </div>
+
+      <!-- Image -->
+      {course.image && (
+        <img
+          src={imageUrl(course.image, { width: 900, height: 500 })}
+          alt={course.title}
+          class="w-full rounded-lg shadow-lg mb-8"
+        />
+      )}
+
+      <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+          <!-- Description -->
+          <div class="prose max-w-none mb-8">
+            {course.description && <RichText html={course.description.html} />}
+          </div>
+
+          <!-- What You'll Learn -->
+          {course.learningOutcomes && (
+            <div class="mb-8">
+              <h2 class="text-2xl font-bold text-navy mb-4">What You'll Learn</h2>
+              <ul class="space-y-2">
+                {course.learningOutcomes.map((outcome: string) => (
+                  <li class="flex items-start gap-3">
+                    <span class="text-ocean mt-1">✓</span>
+                    <span>{outcome}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <!-- Boat Info -->
+          {course.boat && (
+            <div class="bg-gray-50 rounded-lg p-6 mb-8">
+              <h2 class="text-xl font-bold text-navy mb-4">Training Vessel</h2>
+              <div class="flex gap-4 items-start">
+                {course.boat.photo && (
+                  <img
+                    src={imageUrl(course.boat.photo, { width: 200, height: 150 })}
+                    alt={course.boat.name}
+                    class="w-32 h-24 object-cover rounded"
+                  />
+                )}
+                <div>
+                  <h3 class="font-bold text-navy">{course.boat.name}</h3>
+                  <p class="text-gray-600">{course.boat.model}</p>
+                  <p class="text-sm text-gray-500 mt-1">
+                    {course.boat.loa} LOA · {course.boat.steering} steering
+                  </p>
+                  <a href={`/fleet#${course.boat.slug}`} class="text-ocean text-sm hover:underline mt-2 inline-block">
+                    View boat details →
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-lg shadow-lg p-6 sticky top-8">
+            <p class="text-3xl font-bold text-navy mb-1">From ${course.priceFrom}</p>
+            {course.priceNote && (
+              <p class="text-green-600 text-sm font-semibold mb-4">{course.priceNote}</p>
+            )}
+
+            <div class="space-y-3 mb-6 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Duration</span>
+                <span class="font-semibold">{course.duration}</span>
+              </div>
+              {course.schedule && (
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Schedule</span>
+                  <span class="font-semibold">{course.schedule}</span>
+                </div>
+              )}
+              <div class="flex justify-between">
+                <span class="text-gray-500">Max Students</span>
+                <span class="font-semibold">{course.maxStudents} per instructor</span>
+              </div>
+              {course.prerequisites && (
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Prerequisites</span>
+                  <span class="font-semibold">{course.prerequisites}</span>
+                </div>
+              )}
+              {course.certification && (
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Certification</span>
+                  <span class="font-semibold">{course.certification}</span>
+                </div>
+              )}
+            </div>
+
+            {course.womenOnlyAvailable && (
+              <p class="text-sm bg-pink-50 text-pink-700 p-3 rounded mb-4">
+                Women-only sessions available
+              </p>
+            )}
+
+            {course.isBundle && course.bundleIncludes && (
+              <p class="text-sm bg-blue-50 text-blue-700 p-3 rounded mb-4">
+                Bundle includes: {course.bundleIncludes}
+              </p>
+            )}
+
+            {course.bookingType === 'online' ? (
+              <button class="w-full bg-ocean text-white py-3 rounded-lg font-semibold hover:bg-navy transition">
+                Book Now
+              </button>
+            ) : (
+              <div class="text-center">
+                <p class="text-gray-600 mb-2">Call to book this course</p>
+                <a href={`tel:${settings?.phone}`} class="text-2xl font-bold text-ocean hover:underline">
+                  {settings?.phone}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { getGalleryPhotos, imageUrl } from '../lib/content'
+
+const photos = await getGalleryPhotos()
+
+// Group by category
+const categories = ['sailing', 'students', 'lifestyle']
+const photosByCategory = categories.reduce((acc: Record<string, any[]>, cat) => {
+  acc[cat] = photos.filter((p: any) => p.category === cat)
+  return acc
+}, {})
+---
+
+<Layout title="Gallery" description="Photos from our sailing courses">
+  <section class="py-16">
+    <div class="max-w-6xl mx-auto px-4">
+      <h1 class="text-4xl font-bold text-navy mb-4 text-center">Photo Gallery</h1>
+      <p class="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+        See what it's like to learn to sail with us.
+      </p>
+
+      {photos.length > 0 ? (
+        <div class="space-y-12">
+          {categories.map((category) => (
+            photosByCategory[category].length > 0 && (
+              <div>
+                <h2 class="text-2xl font-bold text-navy mb-6 capitalize">{category}</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {photosByCategory[category].map((photo: any) => (
+                    <figure class="group relative overflow-hidden rounded-lg">
+                      <img
+                        src={imageUrl(photo.image, { width: 400, height: 300 })}
+                        alt={photo.caption || 'Gallery photo'}
+                        class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+                      />
+                      {photo.caption && (
+                        <figcaption class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-sm p-2 opacity-0 group-hover:opacity-100 transition">
+                          {photo.caption}
+                        </figcaption>
+                      )}
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            )
+          ))}
+        </div>
+      ) : (
+        <p class="text-center text-gray-500">No photos yet. Check back soon!</p>
+      )}
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,111 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { getBoats, imageUrl } from '../lib/content'
+
+const boats = await getBoats()
+---
+
+<Layout title="Fleet" description="Our training vessels">
+  <section class="py-16">
+    <div class="max-w-6xl mx-auto px-4">
+      <h1 class="text-4xl font-bold text-navy mb-4 text-center">Our Fleet</h1>
+      <p class="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+        Well-maintained, well-equipped training vessels selected for safe, effective instruction.
+      </p>
+
+      <div class="space-y-16">
+        {boats.map((boat: any) => (
+          <article id={boat.slug} class="boat-card bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="md:flex">
+              {boat.photo && (
+                <div class="md:w-1/2">
+                  <img
+                    src={imageUrl(boat.photo, { width: 600, height: 400 })}
+                    alt={boat.name}
+                    class="boat-main-image w-full h-64 md:h-full object-cover"
+                  />
+                </div>
+              )}
+              <div class="md:w-1/2 p-8">
+                <p class="text-ocean font-semibold mb-1">{boat.role}</p>
+                <h2 class="text-3xl font-bold text-navy mb-2">{boat.name}</h2>
+                <p class="text-xl text-gray-600 mb-6">{boat.model}</p>
+
+                {boat.whyThisBoat && (
+                  <p class="text-gray-700 mb-6">{boat.whyThisBoat}</p>
+                )}
+
+                <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+                  <div>
+                    <span class="text-gray-500">Length</span>
+                    <p class="font-semibold">{boat.loa}</p>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Beam</span>
+                    <p class="font-semibold">{boat.beam}</p>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Draft</span>
+                    <p class="font-semibold">{boat.draft}</p>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Displacement</span>
+                    <p class="font-semibold">{boat.displacement}</p>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Sail Area</span>
+                    <p class="font-semibold">{boat.sailArea}</p>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Steering</span>
+                    <p class="font-semibold">{boat.steering}</p>
+                  </div>
+                </div>
+
+                {boat.features && boat.features.length > 0 && (
+                  <div>
+                    <h3 class="font-semibold text-navy mb-2">Features</h3>
+                    <ul class="flex flex-wrap gap-2">
+                      {boat.features.map((feature: string) => (
+                        <li class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+            {boat.gallery && boat.gallery.length > 0 && (
+              <div class="p-6 border-t">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {boat.gallery.map((img: any) => (
+                    <img
+                      src={imageUrl(img, { width: 300, height: 200 })}
+                      data-full={imageUrl(img, { width: 600, height: 400 })}
+                      alt={boat.name}
+                      class="boat-thumbnail w-full h-32 object-cover rounded-lg cursor-pointer hover:ring-2 hover:ring-ocean transition"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll('.boat-thumbnail').forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const card = thumb.closest('.boat-card')
+        const mainImage = card?.querySelector('.boat-main-image') as HTMLImageElement
+        const fullSrc = thumb.getAttribute('data-full')
+        if (mainImage && fullSrc) {
+          mainImage.src = fullSrc
+        }
+      })
+    })
+  </script>
+</Layout>

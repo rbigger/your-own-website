@@ -1,0 +1,45 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a365d', 'primaryTextColor': '#fff', 'primaryBorderColor': '#2c5282', 'lineColor': '#4a5568', 'secondaryColor': '#e2e8f0', 'tertiaryColor': '#f7fafc'}}}%%
+flowchart TB
+    subgraph actors[" "]
+        owner[/"Site Owner<br/>(Content Creator)"/]
+        visitor[/"Site Visitor<br/>(Learner)"/]
+    end
+
+    subgraph website["Example Studio Website"]
+        site["Static Website<br/>Astro + Tailwind"]
+    end
+
+    subgraph external["External Services"]
+        sanity["Sanity CMS<br/>Content Management"]
+        cloudflare["Cloudflare Pages<br/>Hosting + CDN"]
+        worker["Cloudflare Worker<br/>Comment Submission"]
+        formspree["Formspree<br/>Contact Forms"]
+        youtube["YouTube<br/>Video Hosting"]
+        googlecloud["Google Cloud<br/>YouTube Data API"]
+        github["GitHub<br/>Source Repository"]
+    end
+
+    owner -->|"Manages content"| sanity
+    owner -->|"Triggers deploy"| cloudflare
+    owner -->|"Receives messages"| formspree
+    owner -->|"Uploads videos"| youtube
+
+    visitor -->|"Views site"| site
+    visitor -->|"Sends messages"| formspree
+    visitor -->|"Submits comments"| worker
+    visitor -->|"Watches videos"| youtube
+
+    site -->|"Fetches content"| sanity
+    site -->|"Hosted on"| cloudflare
+    site -->|"Embeds videos from"| youtube
+    worker -->|"Saves comments to"| sanity
+    sanity -->|"Fetches metadata via"| googlecloud
+    github -->|"Source for"| site
+
+    classDef actor fill:#e2e8f0,stroke:#4a5568,color:#1a202c
+    classDef system fill:#1a365d,stroke:#2c5282,color:#fff
+    classDef external fill:#2c5282,stroke:#1a365d,color:#fff
+
+    class owner,visitor actor
+    class site system
+    class sanity,cloudflare,worker,formspree,youtube,googlecloud,github external

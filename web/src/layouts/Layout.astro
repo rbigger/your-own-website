@@ -1,0 +1,73 @@
+---
+import '../styles/global.css'
+import { getSiteSettings } from '../lib/content'
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const settings = await getSiteSettings()
+const { title, description } = Astro.props
+const pageTitle = title ? `${title} | ${settings?.siteName}` : settings?.siteName
+const pageDescription = description || settings?.tagline
+const scheme = settings?.scheme || 'ocean'
+
+// Font URLs by scheme - only load fonts for selected scheme
+const fontUrls: Record<string, string> = {
+  ocean: 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap',
+  earth: 'https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Open+Sans:wght@400;500;600&display=swap',
+  minimal: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap',
+  bold: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Inter:wght@400;500;600&display=swap',
+  elegant: 'https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap',
+  fresh: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Open+Sans:wght@400;500;600&display=swap',
+}
+const fontUrl = fontUrls[scheme] || fontUrls.ocean
+---
+
+<!doctype html>
+<html lang="en" data-scheme={scheme}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={pageDescription} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Google Fonts - preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Load only fonts for selected scheme -->
+    <link href={fontUrl} rel="stylesheet" />
+    <title>{pageTitle}</title>
+  </head>
+  <body class="min-h-screen bg-sail text-gray-900">
+    <header class="bg-navy text-white">
+      <nav class="max-w-6xl mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <a href="/">
+            <img src="/logo.jpg" alt="Example Studio" class="h-36 w-36 rounded-full bg-white p-1" />
+          </a>
+          <ul class="flex gap-6 text-xl">
+            <li><a href="/courses" class="hover:text-sky">Courses</a></li>
+            <li><a href="/fleet" class="hover:text-sky">Fleet</a></li>
+            <li><a href="/videos" class="hover:text-sky">Videos</a></li>
+            <li><a href="/about" class="hover:text-sky">About</a></li>
+            <li><a href="/testimonials" class="hover:text-sky">Testimonials</a></li>
+            <li><a href="/gallery" class="hover:text-sky">Gallery</a></li>
+            <li><a href="/contact" class="hover:text-sky">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="bg-navy text-white mt-16 py-8">
+      <div class="max-w-6xl mx-auto px-4 text-center text-sm">
+        <p>&copy; {new Date().getFullYear()} {settings?.siteName}. All rights reserved.</p>
+        <p class="mt-2 text-gray-400">{settings?.location} &bull; {settings?.phone}</p>
+      </div>
+    </footer>
+  </body>
+</html>

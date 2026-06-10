@@ -1,0 +1,70 @@
+---
+import Layout from '../layouts/Layout.astro'
+import CommentForm from '../components/CommentForm.astro'
+import CommentList from '../components/CommentList.astro'
+import { getTestimonials, imageUrl } from '../lib/content'
+import { PUBLIC_ENABLE_COMMENTS } from 'astro:env/client'
+
+const testimonials = await getTestimonials()
+const commentsEnabled = PUBLIC_ENABLE_COMMENTS
+---
+
+<Layout title="Testimonials" description="What our students say">
+  <section class="py-16">
+    <div class="max-w-6xl mx-auto px-4">
+      <h1 class="text-4xl font-bold text-navy mb-4 text-center">Student Testimonials</h1>
+      <p class="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+        Don't just take our word for it. Hear from students who've learned to sail with us.
+      </p>
+
+      {commentsEnabled && (
+        <div id="success-message" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-8 text-center max-w-2xl mx-auto">
+          <p class="font-semibold">Thank you for your comment!</p>
+          <p class="text-sm mt-1">Your feedback will appear on the site after it has been reviewed.</p>
+        </div>
+      )}
+
+      {commentsEnabled && (
+        <script>
+          if (window.location.search.includes('submitted=true')) {
+            document.getElementById('success-message')?.classList.remove('hidden')
+          }
+        </script>
+      )}
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {testimonials.map((t: any) => (
+          <blockquote class="bg-white p-6 rounded-lg shadow-md flex flex-col">
+            <div class="flex-grow">
+              <p class="text-gray-700 italic leading-relaxed">"{t.quote}"</p>
+            </div>
+            <footer class="mt-6 flex items-center gap-3">
+              {t.authorPhoto ? (
+                <img
+                  src={imageUrl(t.authorPhoto, { width: 48, height: 48 })}
+                  alt={t.authorName}
+                  class="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <div class="w-12 h-12 rounded-full bg-ocean text-white flex items-center justify-center font-bold">
+                  {t.authorName.charAt(0)}
+                </div>
+              )}
+              <div>
+                <cite class="font-semibold text-navy not-italic block">{t.authorName}</cite>
+                {t.courseName && <span class="text-gray-500 text-sm">{t.courseName}</span>}
+              </div>
+            </footer>
+          </blockquote>
+        ))}
+      </div>
+
+      {testimonials.length === 0 && (
+        <p class="text-center text-gray-500">No testimonials yet.</p>
+      )}
+
+      {commentsEnabled && <CommentList />}
+      {commentsEnabled && <CommentForm />}
+    </div>
+  </section>
+</Layout>

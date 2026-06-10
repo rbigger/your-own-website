@@ -1,0 +1,115 @@
+sequenceDiagram
+    autonumber
+
+    actor Visitor
+    participant Page as Testimonials Page<br/>(Astro SSG)
+    participant Form as Comment Form<br/>(Astro Component)
+    participant Worker as Cloudflare Worker<br/>(/api/comment)
+    participant Sanity as Sanity API<br/>(api.sanity.io)
+    participant Studio as Sanity Studio<br/>(CMS Dashboard)
+    actor Owner as Site Owner
+    participant CF as Cloudflare Pages<br/>(Build & Deploy)
+    participant Site as Live Website<br/>(your-site.pages.dev)
+
+    Note over Visitor,Site: PHASE 0: Feature Flag Check (Build Time)
+    Note right of Page: PUBLIC_ENABLE_COMMENTS<br/>from astro:env/client
+
+    alt PUBLIC_ENABLE_COMMENTS = true
+        Page->>Form: Render CommentForm + CommentList
+    else PUBLIC_ENABLE_COMMENTS = false
+        Note right of Page: Form/List not rendered<br/>(static-only deployment)
+    end
+
+    Note over Visitor,Site: PHASE 1: Comment Submission
+
+    Visitor->>Form: Fill out comment form
+    Note right of Form: name, email (opt),<br/>comment text
+
+    Visitor->>Form: Click Submit
+    Form->>Worker: POST /api/comment<br/>(form data)
+
+    activate Worker
+
+    Worker->>Worker: Validate required fields
+    alt Missing name or comment
+        Worker-->>Form: 400 Bad Request (JSON)
+        Note right of Form: Raw JSON response<br/>(Part C deferred)
+    end
+
+    Worker->>Worker: Check comment length
+    alt Comment > 2000 chars
+        Worker-->>Form: 400 Comment too long (JSON)
+        Note right of Form: Raw JSON response<br/>(Part C deferred)
+    end
+
+    Worker->>Worker: Spam pattern detection
+    Note right of Worker: Check for URLs,<br/>scripts, keywords
+    alt Spam detected
+        Worker-->>Form: 200 OK (silent reject)
+        Form-->>Visitor: Show success (honeypot)
+    end
+
+    Worker->>Worker: Check honeypot field
+    alt Honeypot filled (bot)
+        Worker-->>Form: 200 OK (silent reject)
+        Form-->>Visitor: Show success (honeypot)
+    end
+
+    Note over Visitor,Site: PHASE 2: Save to Sanity
+
+    Worker->>Sanity: POST /data/mutate<br/>Create comment document
+    Note right of Sanity: approved: false<br/>submittedAt: now()
+
+    activate Sanity
+    Sanity->>Sanity: Create document
+    Sanity-->>Worker: 200 OK (document ID)
+    deactivate Sanity
+
+    Note right of Sanity: Email notification NOT IMPLEMENTED<br/>(future enhancement)
+
+    Worker-->>Form: 303 Redirect<br/>/testimonials?submitted=true
+    deactivate Worker
+
+    Form-->>Visitor: Display success message<br/>"Thank you! Comment pending review."
+
+    Note over Visitor,Site: PHASE 3: Moderation (async, Owner's schedule)
+
+    Owner->>Studio: Login to Sanity Studio
+    Studio->>Sanity: Fetch comments<br/>where approved == false
+    Sanity-->>Studio: List of pending comments
+    Studio-->>Owner: Display pending comments<br/>(○ prefix = unapproved)
+
+    Owner->>Studio: Click comment to review
+    Studio-->>Owner: Show full comment details
+
+    alt Approve comment
+        Owner->>Studio: Check "Approved" checkbox
+        Owner->>Studio: Click Publish
+        Studio->>Sanity: Update document<br/>approved: true
+        Sanity-->>Studio: 200 OK
+        Studio-->>Owner: Show ✓ (approved)
+    else Reject as spam
+        Owner->>Studio: Click (...) menu → Delete
+        Studio->>Sanity: Delete document
+        Sanity-->>Studio: 200 OK
+        Studio-->>Owner: Comment removed
+    end
+
+    Note over Visitor,Site: PHASE 4: Deploy to Live Site
+
+    Owner->>CF: Trigger deployment<br/>(Dashboard or CLI)
+    activate CF
+
+    CF->>Sanity: Fetch all content<br/>(build-time query)
+    Note right of CF: *[_type == "comment"<br/>&& approved == true]
+    Sanity-->>CF: Approved comments
+
+    CF->>CF: Astro build<br/>(generate static HTML)
+    CF->>CF: Deploy to CDN<br/>(edge locations)
+    CF-->>Owner: Deployment complete
+    deactivate CF
+
+    Note over Visitor,Site: PHASE 5: Comment Visible
+
+    Visitor->>Site: Visit testimonials page
+    Site-->>Visitor: Page with approved comments<br/>(including their comment)

@@ -1,0 +1,87 @@
+---
+// CommentForm.astro - Comment submission form component
+// Task #7: Create comment form with honeypot spam protection
+import { PUBLIC_ENABLE_COMMENTS } from 'astro:env/client'
+
+// Defensive guard: no-op when comments disabled
+if (!PUBLIC_ENABLE_COMMENTS) return null
+---
+
+<section class="mt-16 pt-16 border-t border-gray-200">
+  <div class="max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold text-navy mb-4 text-center">Share Your Experience</h2>
+    <p class="text-gray-600 text-center mb-8">
+      Had a great sailing lesson? We'd love to hear from you!
+    </p>
+
+    <form action="/api/comment" method="POST" class="space-y-6">
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+          Name <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          required
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ocean focus:border-ocean transition-colors"
+          placeholder="Your name"
+        />
+      </div>
+
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+          Email <span class="text-gray-400 text-xs">(optional)</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ocean focus:border-ocean transition-colors"
+          placeholder="your@email.com"
+        />
+      </div>
+
+      <div>
+        <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">
+          Your Comment <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          id="comment"
+          name="comment"
+          required
+          maxlength="2000"
+          rows="5"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ocean focus:border-ocean transition-colors resize-y"
+          placeholder="Share your experience..."
+        ></textarea>
+        <p class="text-xs text-gray-400 mt-1">Maximum 2000 characters</p>
+      </div>
+
+      <!-- Honeypot field - hidden from users, catches bots -->
+      <div class="absolute -left-[9999px] opacity-0" aria-hidden="true">
+        <label for="website">Website</label>
+        <input
+          type="text"
+          id="website"
+          name="website"
+          tabindex="-1"
+          autocomplete="off"
+        />
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          class="w-full bg-ocean hover:bg-navy text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+        >
+          Submit Comment
+        </button>
+      </div>
+
+      <p class="text-xs text-gray-500 text-center">
+        Your comment will be reviewed before appearing on the site.
+      </p>
+    </form>
+  </div>
+</section>
